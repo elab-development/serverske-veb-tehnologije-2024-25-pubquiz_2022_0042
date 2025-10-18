@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Season;
+use Illuminate\Support\Facades\DB;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 class SeasonController extends Controller
 {
     /**
@@ -158,4 +160,45 @@ class SeasonController extends Controller
 
         return response()->json($board);
     }
+
+    public function exportLeaderboardCsv(Season $season)
+    {
+        $board = DB::table('teams')
+            ->join('event_team', 'teams.id', '=', 'event_team.team_id')
+            ->join('events', 'events.id', '=', 'event_team.event_id')
+            ->where('events.season_id', $season->id)
+            ->groupBy('teams.id', 'teams.name')
+            ->select('teams.id', 'teams.name', DB::raw('SUM(event_team.score) as total_score'))
+            ->orderByDesc('total_score')
+            ->get();
+
+        if ($board->isEmpty()) {
+            return response()->json(['message' => 'No leaderboard data for this season'], 404);
+        }
+
+        $fileName = 'season_' . $season->id . '_leaderboard_' . now()->format('Y_m_d_His') . '.csv';
+
+        $response = new StreamedResponse(function () use ($board) {
+            $out = fopen('php://output', 'w');
+
+            fputcsv($out, ['#', 'Team', 'Total score:']);
+
+            $rank = 1;
+            foreach ($board as $row) {
+                fputcsv($out, [
+                    $rank++,
+                    $row->name,
+                    (int) $row->total_score,
+                ]);
+            }
+
+            fclose($out);
+        });
+
+        $response->headers->set('Content-Type', 'text/csv; charset=UTF-8');
+        $response->headers->set('Content-Disposition', "attachment; filename=\"{$fileName}\"");
+
+        return $response;
+    }
+
 }

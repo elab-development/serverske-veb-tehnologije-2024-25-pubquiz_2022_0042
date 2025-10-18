@@ -24,7 +24,7 @@ class EventController extends Controller
         if ($request->filled('season_id')) {
             $query->where('season_id', '=', (int) $request->query('season_id'));
         }
-        
+
         $perPage = $request->query('per_page', 10);
         $events = $query->paginate($perPage);
 
@@ -147,16 +147,7 @@ class EventController extends Controller
         return response()->json($events, 200);
     }
 
-    public function trivia()
-    {
-        $response = Http::get('https://opentdb.com/api.php?amount=5&type=multiple');
 
-        if ($response->successful()) {
-            return response()->json($response->json(), 200);
-        }
-
-        return response()->json(['error' => 'Failed to fetch trivia data'], 500);
-    }
 
     public function teams(Event $event)
     {
@@ -194,6 +185,17 @@ class EventController extends Controller
         }
 
         return response()->json($board);
+    }
+
+    public function trivia()
+    {
+        $response = Http::get('https://opentdb.com/api.php?amount=5&type=multiple');
+
+        if ($response->successful()) {
+            return response()->json($response->json(), 200);
+        }
+
+        return response()->json(['error' => 'Failed to fetch trivia data'], 500);
     }
 
 }

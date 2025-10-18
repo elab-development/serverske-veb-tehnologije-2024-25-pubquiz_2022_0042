@@ -20,6 +20,7 @@ Route::middleware('api')->group(function () {
     Route::apiResource('teams', TeamController::class)->only(['index', 'show']);
     Route::apiResource('seasons', SeasonController::class)->only(['index', 'show']);
     Route::apiResource('events', EventController::class)->only(['index', 'show']);
+    Route::get('/seasons/{season}/leaderboard/export', [SeasonController::class, 'exportLeaderboardCsv']);
 
 
 });
