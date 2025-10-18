@@ -24,7 +24,7 @@ class EventController extends Controller
         if ($request->filled('season_id')) {
             $query->where('season_id', '=', (int) $request->query('season_id'));
         }
-
+        
         $perPage = $request->query('per_page', 10);
         $events = $query->paginate($perPage);
 
