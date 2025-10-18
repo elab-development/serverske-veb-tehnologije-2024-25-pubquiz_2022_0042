@@ -7,8 +7,6 @@ use App\Http\Controllers\TeamController;
 use App\Http\Controllers\AuthController;
 
 Route::middleware('api')->group(function () {
-    Route::post('/register', [AuthController::class, 'register']);
-    Route::post('/login', [AuthController::class, 'login']);
 
     Route::get('/seasons/active', [SeasonController::class, 'active']);
     Route::get('/seasons/{season}/leaderboard', [SeasonController::class, 'leaderboard']);
@@ -27,9 +25,6 @@ Route::middleware('api')->group(function () {
     Route::middleware(['auth:sanctum'])->get('/my-results', [App\Http\Controllers\TeamController::class, 'myResults']);
 
     Route::middleware(['api', 'auth:sanctum'])->group(function () {
-
-    Route::post('/logout', [AuthController::class, 'logout']);
-
     Route::apiResource('teams', TeamController::class)->only(['store', 'update', 'destroy']);
     Route::apiResource('seasons', SeasonController::class)->only(['store', 'update', 'destroy']);
     Route::apiResource('events', EventController::class)->only(['store', 'update', 'destroy']);
